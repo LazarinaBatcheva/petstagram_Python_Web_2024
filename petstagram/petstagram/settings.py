@@ -38,6 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    "petstagram.photos.apps.PhotosConfig",
+    "petstagram.pets.apps.PetsConfig",
+    "petstagram.accounts.apps.AccountsConfig",
+    "petstagram.common.apps.CommonConfig"
 ]
 
 MIDDLEWARE = [
