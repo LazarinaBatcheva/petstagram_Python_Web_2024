@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from petstagram.photos.models import Photo
 
 
 def photo_add_page(request):
@@ -10,4 +11,14 @@ def photo_edit_page(request, pk: int):
 
 
 def photo_details_page(request, pk: int):
-    return render(request, 'photos/photo-details-page.html')
+    photo = Photo.objects.get(pk=pk)
+    likes = photo.likes.all()
+    comments = photo.comments.all()
+
+    context = {
+        'photo': photo,
+        'likes': likes,
+        'comments': comments,
+    }
+
+    return render(request, 'photos/photo-details-page.html', context)
