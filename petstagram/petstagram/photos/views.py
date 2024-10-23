@@ -1,37 +1,25 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, DetailView
+from petstagram.common.forms import CommentAddForm
 from petstagram.photos.forms import PhotoAddForm, PhotoEditForm
 from petstagram.photos.models import Photo
 
 
-def photo_add_page(request):
-    form = PhotoAddForm(request.POST or None, request.FILES or None)
-
-    if form.is_valid():
-        form.save()
-        return redirect('home')
-
-    context = {
-        'form': form,
-    }
-
-    return render(request, 'photos/photo-add-page.html', context)
+class PhotoAddView(CreateView):
+    model = Photo
+    form_class = PhotoAddForm
+    template_name = 'photos/photo-add-page.html'
+    success_url = reverse_lazy('home')
 
 
-def photo_edit_page(request, pk: int):
-    photo = Photo.objects.get(pk=pk)
-    form = PhotoEditForm(request.POST or None, instance=photo)
+class PhotoEditView(UpdateView):
+    model = Photo
+    form_class = PhotoEditForm
+    template_name = 'photos/photo-edit-page.html'
 
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            return redirect('photo-details', pk)
-
-    context = {
-        'photo': photo,
-        'form': form,
-    }
-
-    return render(request, 'photos/photo-edit-page.html', context)
+    def get_success_url(self):
+        return reverse_lazy('photo-details', kwargs={'pk': self.object.pk})
 
 
 def photo_delete_page(request, pk: int):
@@ -40,16 +28,15 @@ def photo_delete_page(request, pk: int):
     return redirect('home')
 
 
+class PhotoDetailView(DetailView):
+    model = Photo
+    template_name = 'photos/photo-details-page.html'
 
-def photo_details_page(request, pk: int):
-    photo = Photo.objects.get(pk=pk)
-    likes = photo.likes.all()
-    comments = photo.comments.all()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    context = {
-        'photo': photo,
-        'likes': likes,
-        'comments': comments,
-    }
+        context['likes'] = self.object.likes.all()
+        context['comments'] = self.object.comments.all()
+        context['comment_form'] = CommentAddForm()
 
-    return render(request, 'photos/photo-details-page.html', context)
+        return context
