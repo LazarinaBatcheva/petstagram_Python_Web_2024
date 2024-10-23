@@ -46,10 +46,13 @@ def photo_details_page(request, pk: int):
     likes = photo.likes.all()
     comments = photo.comments.all()
 
+    comment_form = CommentAddForm()
+
     context = {
         'photo': photo,
         'likes': likes,
         'comments': comments,
+        'comment_form': comment_form,
     }
 
     return render(request, 'photos/photo-details-page.html', context)
